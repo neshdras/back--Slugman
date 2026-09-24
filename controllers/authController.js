@@ -57,7 +57,7 @@ exports.register = async(req, res)=>{
         })
         
         const token = generateToken(user.id_user)
-        console.log("oui")
+
         return res.status(201).json({
             message : 'User registered successfully',
             token,
@@ -84,7 +84,7 @@ exports.login = async (req, res) =>{
         if(!user){
             return res.status(401).json({message : 'invalid credantials'})
         }
-
+        console.log(user)
         //check password match
         const isMatch = await bcrypt.compare(password, user.password_user)
         if(!isMatch){

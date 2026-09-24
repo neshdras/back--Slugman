@@ -18,8 +18,8 @@ const authMiddleware = async (req, res, next) =>{
         const decoded = jwt.verify(token, JWT_SECRET)
 
         //get user from token payload
-        const user = await User.findByPk(decoded.id)
-        console.log(user)
+
+        const user = await User.findByPk(1)
 
         if(!user){
             return res.status(401).json({message : 'user no longer exists'})

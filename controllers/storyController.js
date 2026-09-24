@@ -1,5 +1,7 @@
-const User = require('../models/userModel')
-const Object = require('../models/userModel')
+    const User = require('../models/userModel')
+const Object = require('../models/objectsModel')
+const { sequelize } = require('../config/database')
+const { QueryTypes } = require('sequelize')
 
 exports.save = async(req, res)=>{ 
     try {
@@ -39,19 +41,15 @@ exports.save = async(req, res)=>{
 exports.object = async(req, res)=>{ 
     try {
         const {object} = req.body
-        const iduser = req.user_id
+        const iduser = req.user.id_user
 
         if(!object){
             return res.status(400).json({message : 'empty field'})
         }
 
-        const existingObject = await sequelize.query('SELECT name_object, id_object FROM "objects" WHERE name_object = :object', {
-            type: QueryTypes.SELECT,
-            replacements: { object }
-        }) 
-
+        const existingObject = await Object.findOne({where: {name_object: object}})
         const idobject = existingObject.id_object
-
+        console.log(idobject)
         await sequelize.query('INSERT INTO users_has_objects(fk_id_user, fk_id_object) VALUES(:iduser, :idobject)', {
             type: QueryTypes.INSERT,
             replacements: { iduser, idobject }
