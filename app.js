@@ -17,7 +17,7 @@ startServer()
 //     })
 // )
 const authRoutes = require('./routes/authRoute')
-// const userRoutes = require('./routes/userRoute')
+const storyRoutes = require('./routes/storyRoute')
 // const tournamentRoutes = require('./routes/tournamentRoute')
 // const adminRoutes = require('./routes/adminRoute')
 const rateLimit = require('express-rate-limit')
@@ -35,7 +35,7 @@ const corsOption = {
 }
 app.use(cors(corsOption))
 app.use('/api/v1/auth', authRoutes)
-// app.use('/api/v1/user', userRoutes)
+app.use('/api/v1/story', storyRoutes)
 // app.use('/api/v1/tournament', tournamentRoutes)
 // app.use('/api/v1/admin', adminRoutes)
 app.get('/', (req, res) => {
