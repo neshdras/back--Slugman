@@ -16,7 +16,7 @@ startServer()
 //         crossOriginRessoucePolicy: { policy: "cross-origin" }
 //     })
 // )
-// const authRoutes = require('./routes/authRoute')
+const authRoutes = require('./routes/authRoute')
 // const userRoutes = require('./routes/userRoute')
 // const tournamentRoutes = require('./routes/tournamentRoute')
 // const adminRoutes = require('./routes/adminRoute')
@@ -34,7 +34,7 @@ const corsOption = {
     origin: 'http://localhost:3000'
 }
 app.use(cors(corsOption))
-// app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/auth', authRoutes)
 // app.use('/api/v1/user', userRoutes)
 // app.use('/api/v1/tournament', tournamentRoutes)
 // app.use('/api/v1/admin', adminRoutes)
@@ -44,3 +44,4 @@ app.get('/', (req, res) => {
 app.listen(port, ()=>{
     console.log(`Serveur start on http://localhost:${port}`)
 })
+
