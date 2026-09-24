@@ -3,9 +3,14 @@ const {sequelize} = require('../config/database')
 const bcrypt = require('bcryptjs')
 
 const User = sequelize.define('users' ,{
+    id_user:{
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true
+    },
     name_user:{
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
     },
     email_user:{
@@ -39,7 +44,7 @@ const User = sequelize.define('users' ,{
 },{
     hooks:{
         beforeSave: async (user) =>{
-        if(!user.changed('password')) return;
+        if(!user.changed('password_user')) return;
         const salt = await bcrypt.genSalt(10)
         user.password_user = await bcrypt.hash(user.password_user, salt)
         }

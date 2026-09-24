@@ -2,7 +2,8 @@ const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const validator = require('validator')
- 
+const { sequelize } = require('../config/database')
+const { QueryTypes } = require('sequelize')
 
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRES_IN = '150d'
@@ -41,19 +42,27 @@ exports.register = async(req, res)=>{
         if(!isEmailOk){
             return res.status(400).json({message: "email not valid"})
         }
+        const existingUser = await sequelize.query('SELECT COUNT(email_user) FROM "users" WHERE email_user = :email', {
+            type: QueryTypes.SELECT,
+            replacements: { email}
+        }) 
+
+        if(existingUser[0].count == 1)
+            return res.status(400).json({message: 'Email is already use'})
 
         const user = await User.create({
-            name_user,
-            email_user,
-            password_user, 
+            name_user: name,
+            email_user: email,
+            password_user: password, 
         })
-
-        const token = generateToken(user.id)
+        
+        const token = generateToken(user.id_user)
+        console.log("oui")
         return res.status(201).json({
             message : 'User registered successfully',
             token,
             user: {
-                id_user: user.id,
+                id_user: user.id_user,
                 name_user: user.name_user,
                 email_user: user.email_user,
             }
@@ -71,13 +80,13 @@ exports.login = async (req, res) =>{
             res.status(400).json({message : 'empty field'})
         }
         //find user and select password field
-        const user = await User.findOne({ where: { email } })
+        const user = await User.findOne({ where: { email_user: email } })
         if(!user){
             return res.status(401).json({message : 'invalid credantials'})
         }
 
         //check password match
-        const isMatch = await bcrypt.compare(password, user.password)
+        const isMatch = await bcrypt.compare(password, user.password_user)
         if(!isMatch){
             return res.status(401).json({message : 'incorrect password'})
         }
@@ -87,9 +96,9 @@ exports.login = async (req, res) =>{
             message : 'User login successfully',
             token,
             user: {
-                id_user: user.id,
-                name_user: user.name,
-                email_user: user.email,
+                id_user: user.id_user,
+                name_user: user.name_user,
+                email_user: user.email_user,
             }
         })
 
