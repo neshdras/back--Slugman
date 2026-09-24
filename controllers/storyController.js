@@ -1,5 +1,6 @@
-    const User = require('../models/userModel')
+const User = require('../models/userModel')
 const Object = require('../models/objectsModel')
+const Place = require('../models/placesModel')
 const { sequelize } = require('../config/database')
 const { QueryTypes } = require('sequelize')
 
@@ -48,8 +49,19 @@ exports.object = async(req, res)=>{
         }
 
         const existingObject = await Object.findOne({where: {name_object: object}})
+
         const idobject = existingObject.id_object
-        console.log(idobject)
+
+        const existingtest = await sequelize.query('SELECT * FROM users_has_objects WHERE fk_id_user = :iduser AND fk_id_object = :idobject', {
+            type: QueryTypes.SELECT,
+            replacements: { iduser, idobject }
+        }) 
+
+        if(existingtest.length >= 1){
+            return res.status(400).json({message : 'already have the object'})
+        }
+
+
         await sequelize.query('INSERT INTO users_has_objects(fk_id_user, fk_id_object) VALUES(:iduser, :idobject)', {
             type: QueryTypes.INSERT,
             replacements: { iduser, idobject }
@@ -66,18 +78,25 @@ exports.object = async(req, res)=>{
 exports.enterPlace = async(req, res)=>{ 
     try {
         const {place} = req.body
-        const iduser = req.user_id
+        const iduser = req.user.id_user
 
         if(!place){
             return res.status(400).json({message : 'empty field'})
         }
 
-        const existingPlace = await sequelize.query('SELECT name_place, id_place FROM "places" WHERE name_place = :place', {
-            type: QueryTypes.SELECT,
-            replacements: { place }
-        }) 
+        const existingPlace = await Place.findOne({where: {name_place: place}})
 
         const idplace = existingPlace.id_place
+
+        const existingtest = await sequelize.query('SELECT * FROM users_has_places WHERE fk_id_user = :iduser AND fk_id_place = :idplace', {
+            type: QueryTypes.SELECT,
+            replacements: { iduser, idplace }
+        }) 
+
+        if(existingtest.length >= 1){
+            return res.status(400).json({message : 'already in the place'})
+        }
+
 
         await sequelize.query('INSERT INTO users_has_places(fk_id_user, fk_id_place) VALUES(:iduser, :idplace)', {
             type: QueryTypes.INSERT,
@@ -96,7 +115,7 @@ exports.enterPlace = async(req, res)=>{
 exports.leavePlace = async(req, res)=>{ 
     try {
         const {place} = req.body
-        const iduser = req.user_id
+        const iduser = req.user.id_user
 
         if(!place){
             return res.status(400).json({message : 'empty field'})
@@ -107,9 +126,11 @@ exports.leavePlace = async(req, res)=>{
             replacements: { place }
         }) 
 
-        const idplace = existingPlace.id_place
+        const idplace = existingPlace[0].id_place
+        console.log(idplace)
+        console.log(existingPlace)
 
-        await sequelize.query('DELETE FROM users_has_places FROM fk_id_user = :iduser and fk_id_place = :idplace)', {
+        await sequelize.query('DELETE FROM users_has_places WHERE fk_id_user = :iduser AND fk_id_place = :idplace', {
             type: QueryTypes.DELETE,
             replacements: { iduser, idplace }
         }) 
