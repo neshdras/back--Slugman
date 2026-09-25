@@ -19,7 +19,7 @@ const authMiddleware = async (req, res, next) =>{
 
         //get user from token payload
 
-        const user = await User.findByPk(1)
+        const user = await User.findByPk(decoded.id)
 
         if(!user){
             return res.status(401).json({message : 'user no longer exists'})
