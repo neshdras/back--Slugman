@@ -28,8 +28,8 @@ const User = sequelize.define('users' ,{
     fame_user:{
         type: DataTypes.INTEGER,
         allowNull: false,
-        unique: true,
-        defaultValue: 50,
+        unique: false,
+        defaultValue: 0,
     },
     actual_chapter_user:{
         type: DataTypes.STRING,

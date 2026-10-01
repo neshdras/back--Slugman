@@ -77,7 +77,7 @@ exports.login = async (req, res) =>{
     try {
         const {email, password} = req.body
         if(!email || !password){
-            res.status(400).json({message : 'empty field'})
+            return res.status(400).json({message : 'empty field'})
         }
         //find user and select password field
         const user = await User.findOne({ where: { email_user: email } })
@@ -90,7 +90,7 @@ exports.login = async (req, res) =>{
         if(!isMatch){
             return res.status(401).json({message : 'incorrect password'})
         }
-        const token = generateToken(user.id)
+        const token = generateToken(user.id_user)
 
         return res.status(200).json({
             message : 'User login successfully',
@@ -103,6 +103,14 @@ exports.login = async (req, res) =>{
         })
 
     } catch (error) {
-        res.status(500).json({message : 'server error during login', error: err.message})
+        res.status(500).json({message : 'server error during login', error: error.message})
     }
+}
+
+exports.me = async (req, res) => {
+    // req.user est rempli par authMiddleware
+    const { id_user, name_user, email_user, fame_user, actual_chapter_user, actual_act_user } = req.user
+    return res.status(200).json({
+        user: { id_user, name_user, email_user, fame_user, actual_chapter_user, actual_act_user },
+    })
 }

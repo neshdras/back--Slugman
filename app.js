@@ -30,10 +30,10 @@ const limiter = rateLimit({
 
 app.use(limiter)
 app.use(express.json())
-const corsOption = {
-    origin: 'http://localhost:3000'
-}
-app.use(cors(corsOption))
+// const corsOption = {
+//     origin: 'http://localhost:3000'
+// }
+app.use(cors())
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/story', storyRoutes)
 // app.use('/api/v1/tournament', tournamentRoutes)
