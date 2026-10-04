@@ -30,14 +30,18 @@ const limiter = rateLimit({
 
 app.use(limiter)
 app.use(express.json())
-// const corsOption = {
-//     origin: 'http://localhost:3000'
-// }
-app.use(cors())
+const corsOption = {
+    origin: ['https://front-slugman.vercel.app', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+}
+app.use(cors(corsOption))
+app.options('*', cors(corsOptions));
+
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/story', storyRoutes)
-// app.use('/api/v1/tournament', tournamentRoutes)
-// app.use('/api/v1/admin', adminRoutes)
+
 app.get('/', (req, res) => {
     res.send('Bienvenue sur mon api rest')
 })
