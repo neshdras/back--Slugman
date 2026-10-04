@@ -30,14 +30,31 @@ const limiter = rateLimit({
 
 app.use(limiter)
 app.use(express.json())
-const corsOption = {
-    origin: ['https://front-slugman.vercel.app', 'http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+
+const allowedOrigins = [
+    'https://front-slugman.vercel.app',
+    'http://localhost:5173'
+];
+
+// 2. Middleware CORS
+app.use(cors({
+    origin: function (origin, callback) {
+        // Autorise les requêtes sans origine (comme Postman ou mobile)
+        if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        } else {
+        callback(new Error('Bloqué par CORS'));
+        }
+    },
     credentials: true,
-}
-app.use(cors(corsOption))
-app.options('*', cors(corsOptions));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+app.options('*', (req, res) => {
+  res.sendStatus(200);
+});
+
 
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/story', storyRoutes)
