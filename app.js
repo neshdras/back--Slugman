@@ -17,26 +17,22 @@ startServer()
 //     })
 // )
 const authRoutes = require('./routes/authRoute')
-const storyRoutes = require('./routes/storyRoute')
-// const tournamentRoutes = require('./routes/tournamentRoute')
-// const adminRoutes = require('./routes/adminRoute')
-const rateLimit = require('express-rate-limit')
-
-const limiter = rateLimit({
-    windowMs: 15*60*1000, // femetre de 15min,
-    limit: 100, // Max 100 requete par créneau
-    message: { status: 429, error: 'Trop de requete, réessayez plus tard'}
-})
-
-app.use(limiter)
-app.use(express.json())
-
 const allowedOrigins = [
     'https://front-slugman.vercel.app',
     'http://localhost:5173'
 ];
 
 // 2. Middleware CORS
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || 'https://front-slugman.vercel.app'); //https://front-slugman.vercel.app
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    return res.sendStatus(200);
+  }
+  next();
+});
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -48,17 +44,20 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+const limiter = rateLimit({
+    windowMs: 15*60*1000, // femetre de 15min,
+    limit: 100, // Max 100 requete par créneau
+    message: { status: 429, error: 'Trop de requete, réessayez plus tard'}
+})
 
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || 'https://front-slugman.vercel.app');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.sendStatus(200);
-  }
-  next();
-});
+app.use(limiter)
+const storyRoutes = require('./routes/storyRoute')
+
+const rateLimit = require('express-rate-limit')
+
+app.use(express.json())
+
+
 
 
 app.use('/api/v1/auth', authRoutes)
